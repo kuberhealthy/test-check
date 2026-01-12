@@ -1,0 +1,21 @@
+---
+apiVersion: kuberhealthy.github.io/v2
+kind: HealthCheck
+metadata:
+  name: test-check
+  namespace: kuberhealthy
+spec:
+  runInterval: 5m
+  timeout: 5m
+  podSpec:
+    spec:
+      containers:
+        - name: test-check
+          image: kuberhealthy/test-check:sha-<short-sha>
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: REPORT_FAILURE
+              value: "false"
+            - name: REPORT_DELAY
+              value: "5s"
+      restartPolicy: Never
