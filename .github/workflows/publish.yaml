@@ -40,8 +40,11 @@ jobs:
           file: ./Containerfile
           push: true
           tags: ${{ env.IMAGE_TAG }}
-
       - name: Publish summary
         run: |
+          TAG="${IMAGE_TAG#*:}"
+          IMAGE_REPO="${IMAGE_TAG%:*}"
+          IMAGE_URL="https://hub.docker.com/r/${IMAGE_REPO}/tags?name=${TAG}"
           echo "Images pushed:" >> "$GITHUB_STEP_SUMMARY"
-          echo "- ${{ env.IMAGE_TAG }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- ${IMAGE_TAG}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- ${IMAGE_URL}" >> "$GITHUB_STEP_SUMMARY"
