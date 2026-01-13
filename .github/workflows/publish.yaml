@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - master
     tags:
       - "v*"
 
@@ -35,7 +36,7 @@ jobs:
         with:
           images: kuberhealthy/test-check
           tags: |
-            type=sha,format=short,event=branch
+            type=sha,format=short,prefix=,event=branch
             type=ref,event=tag
 
       - name: Build and push
