@@ -1,9 +1,9 @@
-name: Publish main
+name: Publish tag
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - "v*"
 
 jobs:
   publish:
@@ -29,8 +29,7 @@ jobs:
 
       - name: Set image tag
         run: |
-          SHORT_SHA=$(git rev-parse --short HEAD)
-          IMAGE_TAG="kuberhealthy/test-check:${SHORT_SHA}"
+          IMAGE_TAG="kuberhealthy/test-check:${GITHUB_REF_NAME}"
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
 
       - name: Build and push
