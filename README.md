@@ -1,37 +1,23 @@
-# test-check
+# Test Check
 
-The test-check is a minimal Kuberhealthy check that reports a configured
-success or failure after a configurable delay. It is useful for validating
-that Kuberhealthy reporting works end-to-end.
+Kuberhealthy's test check
 
-## Configuration
+## What it is
+This repository builds the container image used by Kuberhealthy to run the test-check check.
 
-The check reads the following environment variables:
+## Image
+- `docker.io/kuberhealthy/test-check`
+- Tags: short git SHA for `main` pushes and `vX.Y.Z` for releases.
 
-- `REPORT_FAILURE` (optional, default: `false`): When set to `true`, the check
-  reports a failure to Kuberhealthy.
-- `REPORT_DELAY` (optional, default: `5s`): Duration to wait before reporting.
-
-Kuberhealthy also injects required reporting variables such as
-`KH_REPORTING_URL` and `KH_CHECK_RUN_DEADLINE`.
-
-## Run the check
-
-1. Update the image tag in `healthcheck.yaml`.
-2. Apply the example HealthCheck to your cluster:
-
-```sh
-kubectl apply -f healthcheck.yaml
-```
+## Quick start
+- Apply the example manifest: `kubectl apply -f healthcheck.yaml`
+- Edit the manifest to set any required inputs for your environment.
 
 ## Build locally
+- `docker build -f ./Containerfile -t kuberhealthy/test-check:dev .`
 
-```sh
-just build
-```
+## Contributing
+Issues and PRs are welcome. Please keep changes focused and add a short README update when behavior changes.
 
-## Test locally
-
-```sh
-just test
-```
+## License
+See `LICENSE`.
