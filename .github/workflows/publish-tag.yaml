@@ -69,7 +69,7 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add '*.yaml' '*.yml'
+          git ls-files '*.yaml' '*.yml' | xargs git add
           git commit -m "chore: update healthcheck image for ${GITHUB_REF_NAME}"
           git push origin main
 
