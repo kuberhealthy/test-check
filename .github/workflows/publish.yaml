@@ -30,21 +30,31 @@ jobs:
       - name: Set image tag
         run: |
           SHORT_SHA=$(git rev-parse --short HEAD)
-          IMAGE_TAG="kuberhealthy/test-check:${SHORT_SHA}"
-          echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
+          IMAGE_REPO="kuberhealthy/test-check"
+          IMAGE_TAG="${IMAGE_REPO}:${SHORT_SHA}"
+          LATEST_IMAGE_TAG="${IMAGE_REPO}:latest"
+          echo "IMAGE_REPO=${IMAGE_REPO}" >> "$GITHUB_ENV"
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> "$GITHUB_ENV"
+          echo "LATEST_IMAGE_TAG=${LATEST_IMAGE_TAG}" >> "$GITHUB_ENV"
 
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Containerfile
+          platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ env.IMAGE_TAG }}
+          tags: |
+            ${{ env.IMAGE_TAG }}
+            ${{ env.LATEST_IMAGE_TAG }}
+
       - name: Publish summary
         run: |
           TAG="${IMAGE_TAG#*:}"
-          IMAGE_REPO="${IMAGE_TAG%:*}"
           IMAGE_URL="https://hub.docker.com/r/${IMAGE_REPO}/tags?name=${TAG}"
+          LATEST_IMAGE_URL="https://hub.docker.com/r/${IMAGE_REPO}/tags?name=latest"
           echo "Images pushed:" >> "$GITHUB_STEP_SUMMARY"
           echo "- ${IMAGE_TAG}" >> "$GITHUB_STEP_SUMMARY"
           echo "- ${IMAGE_URL}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- ${LATEST_IMAGE_TAG}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- ${LATEST_IMAGE_URL}" >> "$GITHUB_STEP_SUMMARY"
