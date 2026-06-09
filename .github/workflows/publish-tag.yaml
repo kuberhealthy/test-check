@@ -60,18 +60,7 @@ jobs:
           git fetch origin main
           git checkout main
           git pull --ff-only origin main
-
-          ruby <<'RUBY'
-          image_tag = ENV.fetch("IMAGE_TAG")
-          repo = "test-check"
-          files = Dir.glob("*.yaml") + Dir.glob("*.yml")
-          files.each do |path|
-            text = File.read(path)
-            updated = text.gsub(/(image: +)(?:S*/)?test\-check:[^ ]+/, "\1#{image_tag}")
-            next if updated == text
-            File.write(path, updated)
-          end
-          RUBY
+          ruby -e 'image_tag = ENV.fetch("IMAGE_TAG"); files = Dir.glob("*.yaml") + Dir.glob("*.yml"); files.each do |path| text = File.read(path); updated = text.gsub(/(image:\s+)(?:\S*\/)?test\-check:[^\s]+/) { "#{$1}#{image_tag}" }; File.write(path, updated) if updated != text; end'
 
           if git diff --quiet; then
             echo "No healthcheck image references needed updates."
