@@ -22,6 +22,8 @@ The image manifest includes:
 - `linux/amd64`
 - `linux/arm64`
 
-After the image is pushed, the workflow creates or updates a GitHub release with the same semver as the tag. The release notes link to the GitHub package, and the release includes a `release-images.txt` asset listing the image and supported platforms.
+After the image is pushed, the workflow updates the example healthcheck YAML on `main` to use the released GHCR image tag.
+
+The workflow then creates or updates a GitHub release with the same semver as the tag. The release notes link to the GitHub package, and the release includes a `release-images.txt` asset listing the image and supported platforms.
 
 Docker image tags do not support `+`, so do not use semver build metadata in release tags.

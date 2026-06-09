@@ -12,7 +12,7 @@ jobs:
       contents: write
       packages: write
     steps:
-      - name: Checkout
+      - name: Checkout tag
         uses: actions/checkout@v4
 
       - name: Validate release tag
@@ -53,6 +53,37 @@ jobs:
           push: true
           tags: ${{ env.IMAGE_TAG }}
 
+      - name: Update healthcheck examples
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git fetch origin main
+          git checkout main
+          git pull --ff-only origin main
+
+          ruby <<'RUBY'
+          image_tag = ENV.fetch("IMAGE_TAG")
+          repo = "test-check"
+          files = Dir.glob("*.yaml") + Dir.glob("*.yml")
+          files.each do |path|
+            text = File.read(path)
+            updated = text.gsub(/(image: +)(?:S*/)?test\-check:[^ ]+/, "\1#{image_tag}")
+            next if updated == text
+            File.write(path, updated)
+          end
+          RUBY
+
+          if git diff --quiet; then
+            echo "No healthcheck image references needed updates."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add '*.yaml' '*.yml'
+          git commit -m "chore: update healthcheck image for ${GITHUB_REF_NAME}"
+          git push origin main
+
       - name: Create release notes
         run: |
           cat > release-images.txt <<EOF
@@ -67,6 +98,8 @@ jobs:
           - Image: `${IMAGE_TAG}`
           - Platforms: `linux/amd64`, `linux/arm64`
           - GitHub Package: ${PACKAGE_URL}
+
+          The example healthcheck manifest on `main` was updated to use this image tag.
 
           ```sh
           docker pull ${IMAGE_TAG}
