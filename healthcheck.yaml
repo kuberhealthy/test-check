@@ -11,7 +11,7 @@ spec:
     spec:
       containers:
         - name: test-check
-          image: kuberhealthy/test-check:sha-<short-sha>
+          image: ghcr.io/kuberhealthy/test-check:v0.1.0
           imagePullPolicy: IfNotPresent
           env:
             - name: REPORT_FAILURE
