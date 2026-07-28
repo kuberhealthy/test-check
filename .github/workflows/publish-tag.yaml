@@ -35,13 +35,23 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USER }}
+          password: ${{ secrets.DOCKER_HUB_PAT }}
+
       - name: Set image tag
         run: |
-          IMAGE_REPO="ghcr.io/kuberhealthy/test-check"
+          IMAGE_REPO="docker.io/kuberhealthy/test-check"
           IMAGE_TAG="${IMAGE_REPO}:${GITHUB_REF_NAME}"
+          GHCR_IMAGE_REPO="ghcr.io/kuberhealthy/test-check"
+          GHCR_IMAGE_TAG="${GHCR_IMAGE_REPO}:${GITHUB_REF_NAME}"
           PACKAGE_URL="https://github.com/orgs/kuberhealthy/packages/container/package/test-check"
           echo "IMAGE_REPO=${IMAGE_REPO}" >> "$GITHUB_ENV"
           echo "IMAGE_TAG=${IMAGE_TAG}" >> "$GITHUB_ENV"
+          echo "GHCR_IMAGE_REPO=${GHCR_IMAGE_REPO}" >> "$GITHUB_ENV"
+          echo "GHCR_IMAGE_TAG=${GHCR_IMAGE_TAG}" >> "$GITHUB_ENV"
           echo "PACKAGE_URL=${PACKAGE_URL}" >> "$GITHUB_ENV"
 
       - name: Build and push
@@ -51,7 +61,9 @@ jobs:
           file: ./Containerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ env.IMAGE_TAG }}
+          tags: |
+            ${{ env.IMAGE_TAG }}
+            ${{ env.GHCR_IMAGE_TAG }}
 
       - name: Update healthcheck examples
         env:
@@ -77,6 +89,7 @@ jobs:
         run: |
           {
             echo "Image: ${IMAGE_TAG}"
+            echo "GHCR image: ${GHCR_IMAGE_TAG}"
             echo "Tag: ${GITHUB_REF_NAME}"
             echo "Platforms: linux/amd64, linux/arm64"
             echo "GitHub Package: ${PACKAGE_URL}"
@@ -86,11 +99,13 @@ jobs:
             echo "Container image published for this release."
             echo
             echo "- Image: ${IMAGE_TAG}"
+            echo "- GHCR image: ${GHCR_IMAGE_TAG}"
             echo "- Tag: ${GITHUB_REF_NAME}"
             echo
             echo "Pull:"
             echo
             echo "    docker pull ${IMAGE_TAG}"
+            echo "    docker pull ${GHCR_IMAGE_TAG}"
           } > release-notes.md
 
       - name: Create GitHub release
@@ -110,5 +125,6 @@ jobs:
           echo "- ${GITHUB_REF_NAME}" >> "$GITHUB_STEP_SUMMARY"
           echo "Image pushed:" >> "$GITHUB_STEP_SUMMARY"
           echo "- ${IMAGE_TAG}" >> "$GITHUB_STEP_SUMMARY"
-          echo "Package:" >> "$GITHUB_STEP_SUMMARY"
+          echo "- ${GHCR_IMAGE_TAG}" >> "$GITHUB_STEP_SUMMARY"
+          echo "GHCR package:" >> "$GITHUB_STEP_SUMMARY"
           echo "- ${PACKAGE_URL}" >> "$GITHUB_STEP_SUMMARY"

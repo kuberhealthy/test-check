@@ -28,16 +28,28 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USER }}
+          password: ${{ secrets.DOCKER_HUB_PAT }}
+
       - name: Set image tag
         run: |
           SHORT_SHA=$(git rev-parse --short HEAD)
-          IMAGE_REPO="ghcr.io/kuberhealthy/test-check"
+          IMAGE_REPO="docker.io/kuberhealthy/test-check"
           IMAGE_TAG="${IMAGE_REPO}:${SHORT_SHA}"
           LATEST_IMAGE_TAG="${IMAGE_REPO}:latest"
+          GHCR_IMAGE_REPO="ghcr.io/kuberhealthy/test-check"
+          GHCR_IMAGE_TAG="${GHCR_IMAGE_REPO}:${SHORT_SHA}"
+          GHCR_LATEST_IMAGE_TAG="${GHCR_IMAGE_REPO}:latest"
           PACKAGE_URL="https://github.com/orgs/kuberhealthy/packages/container/package/test-check"
           echo "IMAGE_REPO=${IMAGE_REPO}" >> "$GITHUB_ENV"
           echo "IMAGE_TAG=${IMAGE_TAG}" >> "$GITHUB_ENV"
           echo "LATEST_IMAGE_TAG=${LATEST_IMAGE_TAG}" >> "$GITHUB_ENV"
+          echo "GHCR_IMAGE_REPO=${GHCR_IMAGE_REPO}" >> "$GITHUB_ENV"
+          echo "GHCR_IMAGE_TAG=${GHCR_IMAGE_TAG}" >> "$GITHUB_ENV"
+          echo "GHCR_LATEST_IMAGE_TAG=${GHCR_LATEST_IMAGE_TAG}" >> "$GITHUB_ENV"
           echo "PACKAGE_URL=${PACKAGE_URL}" >> "$GITHUB_ENV"
 
       - name: Build and push
@@ -50,11 +62,15 @@ jobs:
           tags: |
             ${{ env.IMAGE_TAG }}
             ${{ env.LATEST_IMAGE_TAG }}
+            ${{ env.GHCR_IMAGE_TAG }}
+            ${{ env.GHCR_LATEST_IMAGE_TAG }}
 
       - name: Publish summary
         run: |
           echo "Images pushed:" >> "$GITHUB_STEP_SUMMARY"
           echo "- ${IMAGE_TAG}" >> "$GITHUB_STEP_SUMMARY"
           echo "- ${LATEST_IMAGE_TAG}" >> "$GITHUB_STEP_SUMMARY"
-          echo "Package:" >> "$GITHUB_STEP_SUMMARY"
+          echo "- ${GHCR_IMAGE_TAG}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- ${GHCR_LATEST_IMAGE_TAG}" >> "$GITHUB_STEP_SUMMARY"
+          echo "GHCR package:" >> "$GITHUB_STEP_SUMMARY"
           echo "- ${PACKAGE_URL}" >> "$GITHUB_STEP_SUMMARY"
