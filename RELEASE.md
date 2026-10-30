@@ -11,9 +11,10 @@ git push origin v1.2.3
 
 The `Publish tag` GitHub Actions workflow runs on `v*` tags and validates the tag format before publishing. Use `vMAJOR.MINOR.PATCH`, such as `v1.2.3`, or a prerelease tag like `v1.2.3-rc.1`.
 
-The workflow publishes this multi-arch image to GitHub Container Registry:
+The workflow publishes these multi-arch images:
 
 ```text
+docker.io/kuberhealthy/test-check:<tag>
 ghcr.io/kuberhealthy/test-check:<tag>
 ```
 
@@ -22,7 +23,7 @@ The image manifest includes:
 - `linux/amd64`
 - `linux/arm64`
 
-After the image is pushed, the workflow updates the example healthcheck YAML on `main` to use the released GHCR image tag.
+After the image is pushed, the workflow updates the example healthcheck YAML on `main` to use the released Docker Hub image tag.
 
 The workflow then creates or updates a GitHub release with the same semver as the tag. The release notes link to the GitHub package, and the release includes a `release-images.txt` asset listing the image and supported platforms.
 
